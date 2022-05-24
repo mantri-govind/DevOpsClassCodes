@@ -54,11 +54,32 @@ pipeline{
                   sh 'mvn package'
               }
           }
-	  stage('Deploy'){
-	      steps{
-		sh 'curl -T "target/addressbook.war" "http://admin:admin@172.21.15.104:8080/manager/text/deploy?path=/appContext&update=true"'   
-	      }  
-	   }
+	 stage('Docker Build') {
+           steps {
+              
+                sh 'docker build -t devopsclasscodes:latest .' 
+                sh 'docker tag devopsclasscodes:latest mantrig/devopsclasscodes:latest'
+               
+          }
+        }
+     
+	stage('Publish image to Docker Hub') {
+          
+            steps {
+        withDockerRegistry([ credentialsId: "dockerHub", url: "" ]) {
+          sh  'docker push  mantrig/devopsclasscodes:latest'
+        }
+                  
+          }
+        }
+     
+      stage('Deploy using container') {
+           steps 
+  		 {
+                sh "docker run -d -p 8090:8080  mantrig/devopsclasscodes:latest'"
+ 
+            }
+        }
 	   
       }
 }
