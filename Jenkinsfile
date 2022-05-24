@@ -54,7 +54,11 @@ pipeline{
                   sh 'mvn package'
               }
           }
-	     
-          
+	  stage('Deploy'){
+	      steps{
+		sh 'curl -T "target/addressbook.war" "http://admin:admin@172.21.15.104:8080/manager/text/deploy?path=/appContext&update=true"'   
+	      }  
+	   }
+	   
       }
 }
